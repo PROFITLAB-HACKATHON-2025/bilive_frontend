@@ -1,35 +1,29 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Navigate, Route, Routes } from "react-router-dom";
+import MobileShell from "@/components/common/MobileShell";
+
+import HomeMapPage from "@/pages/home/HomeMapPage";
+import RoomDetailPage from "@/pages/home/RoomDetailPage";
+import ReservePage from "@/pages/reserve/ReservePage";
+import CommunityPage from "@/pages/community/CommunityPage";
+import MyPage from "@/pages/my/MyPage";
 
 function App() {
-  const [count, setCount] = useState(0)
+    return (
+        <MobileShell>
+            <Routes>
+                <Route path="/" element={<Navigate to="/home" replace />} />
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+                <Route path="/home" element={<HomeMapPage />} />
+                <Route path="/home/rooms/:roomId" element={<RoomDetailPage />} />
+
+                <Route path="/reserve" element={<ReservePage />} />
+                <Route path="/community" element={<CommunityPage />} />
+                <Route path="/my" element={<MyPage />} />
+
+                <Route path="*" element={<Navigate to="/home" replace />} />
+            </Routes>
+        </MobileShell>
+    );
 }
 
-export default App
+export default App;
