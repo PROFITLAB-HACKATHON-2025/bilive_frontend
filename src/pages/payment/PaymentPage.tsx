@@ -6,23 +6,24 @@ import { theme } from '@/styles/theme';
 // 아이콘 에셋 임포트
 import IconCard from '@/assets/icons/Icon_payment.svg'; // 신용카드
 import IconKakao from '@/assets/icons/icon_kakaotalk.svg'; // 카카오페이
-import IconCoin from '@/assets/icons/Icon_coin.png'; // 무통장입금
 
 export default function PaymentPage() {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // 페이지 진입 시 스크롤 초기화
+  // ✅ [ReservePage와 동일] 페이지 진입 시 스크롤 초기화 로직
   useEffect(() => {
     if (history.scrollRestoration) {
       history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
+
     const timer = setTimeout(() => {
       if (contentRef.current) {
         contentRef.current.scrollTop = 0;
       }
       window.scrollTo(0, 0);
     }, 0);
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -30,7 +31,7 @@ export default function PaymentPage() {
   const location = useLocation();
   const { roomName, selectedDate, selectedTimes, personCount, totalPrice } = location.state || {};
 
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'kakao' | 'bank'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'kakao'>('card');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 날짜/시간 포맷팅
@@ -42,7 +43,6 @@ export default function PaymentPage() {
       ? `${selectedTimes[0]}:00 ~ ${selectedTimes[selectedTimes.length - 1] + 1}:00`
       : '';
 
-  // ✅ [수정됨] 확인창(alert/confirm) 없이 바로 모달 오픈
   const handlePay = () => {
     setIsModalOpen(true);
   };
@@ -59,7 +59,8 @@ export default function PaymentPage() {
         <HeaderTitle>결제하기</HeaderTitle>
       </Header>
 
-      <Content ref={contentRef}>
+      {/* ✅ [ReservePage와 동일] 내부 스크롤 영역 */}
+      <ScrollContent ref={contentRef}>
         {/* 1. 예약 정보 */}
         <Section>
           <SectionTitle>예약 정보</SectionTitle>
@@ -98,17 +99,14 @@ export default function PaymentPage() {
               <MethodIcon src={IconKakao} alt='kakao' />
               <MethodName>카카오페이</MethodName>
             </MethodCard>
-
-            <MethodCard $selected={paymentMethod === 'bank'} onClick={() => setPaymentMethod('bank')}>
-              <RadioCircle $selected={paymentMethod === 'bank'} />
-              <MethodIcon src={IconCoin} alt='bank' />
-              <MethodName>무통장입금</MethodName>
-            </MethodCard>
           </PaymentMethods>
         </Section>
-      </Content>
 
-      {/* 3. 하단 결제 바 */}
+        {/* ✅ [ReservePage와 동일] 하단 바에 가려지지 않게 여백 추가 */}
+        <BottomSpacer />
+      </ScrollContent>
+
+      {/* ✅ [ReservePage와 동일] 하단 결제 바 */}
       <BottomBar>
         <PaymentArea>
           <div className='total-row'>
@@ -156,9 +154,8 @@ export default function PaymentPage() {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%; /* 부모 높이 꽉 채움 (MobileShell 기준) */
   background-color: #fff;
-  padding-bottom: 160px;
   position: relative;
 `;
 
@@ -168,6 +165,7 @@ const Header = styled.div`
   align-items: center;
   padding: 0 16px;
   border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
 `;
 
 const BackButton = styled.button`
@@ -183,9 +181,11 @@ const HeaderTitle = styled.div`
   font-weight: 700;
 `;
 
-const Content = styled.div`
+// ✅ [ReservePage와 동일] 내부 스크롤 컨테이너
+const ScrollContent = styled.div`
   flex: 1;
   overflow-y: auto;
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -278,9 +278,10 @@ const MethodName = styled.span`
   font-weight: 500;
 `;
 
+// ✅ [ReservePage와 동일] 하단 바 스타일
 const BottomBar = styled.div`
-  position: fixed;
-  bottom: 64px;
+  position: absolute; /* Container 기준 절대 위치 */
+  bottom: 64px; /* 하단 탭바 높이 고려 */
   left: 0;
   right: 0;
   background: white;
@@ -290,26 +291,25 @@ const BottomBar = styled.div`
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
   padding: 20px;
   z-index: 1000;
-  max-width: 430px;
-  margin: 0 auto;
 `;
 
 const PaymentArea = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
+
   .total-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 4px;
     .label {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       color: #333;
     }
     .price {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 800;
       color: ${theme.colors.primary};
     }
@@ -326,9 +326,16 @@ const PayBtn = styled.button`
   font-size: 16px;
   font-weight: 800;
   cursor: pointer;
+  transition: opacity 0.2s;
+
   &:active {
-    filter: brightness(0.9);
+    opacity: 0.9;
   }
+`;
+
+// ✅ [ReservePage와 동일] 하단 스페이서
+const BottomSpacer = styled.div`
+  height: 200px;
 `;
 
 // --- Modal Styles ---
