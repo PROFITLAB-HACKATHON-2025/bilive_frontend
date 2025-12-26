@@ -1,3 +1,5 @@
+// rooms.ts (예시: src/api/rooms.ts)
+
 export type RoomsApiItem = {
   id: string;
   name: string;
@@ -11,6 +13,10 @@ export type RoomsApiItem = {
   rating: number;
   reviewCount: number;
   price?: string; // "14,000" (표시용 문자열)
+
+  // ✅ 추가: API가 내려주는 필드
+  people?: number;
+  discountRate?: boolean;
 };
 
 export type RoomsApiResponse = {
@@ -33,6 +39,10 @@ export type Room = {
   rating: number;
   reviewCount: number;
   price?: string; // data.price 그대로
+
+  // ✅ 추가: UI/필터링에서 필요한 값 (정규화 후엔 non-optional 권장)
+  people: number;
+  discountRate: boolean;
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
@@ -64,6 +74,10 @@ export async function fetchRooms(): Promise<Room[]> {
     rating: r.rating,
     reviewCount: r.reviewCount,
     price: r.price, // "14,000"
+
+    // ✅ 추가: 기본값 보장
+    people: typeof r.people === 'number' ? r.people : 1,
+    discountRate: typeof r.discountRate === 'boolean' ? r.discountRate : false,
   }));
 }
 
