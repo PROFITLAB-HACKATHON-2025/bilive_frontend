@@ -14,15 +14,13 @@ const OPTION_PRICE_PER_HOUR = 1000;
 export default function ReservePage() {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // ✅ 페이지 진입 시 강제로 스크롤을 최상단으로 이동
+  // ✅ 페이지 진입 시 스크롤 초기화
   useEffect(() => {
-    // 1. 브라우저 복원 기능 무시하고 즉시 이동
     if (history.scrollRestoration) {
       history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
 
-    // 2. 렌더링 직후 확실하게 다시 이동 (타이밍 이슈 방지)
     const timer = setTimeout(() => {
       if (contentRef.current) {
         contentRef.current.scrollTop = 0;
@@ -198,11 +196,12 @@ export default function ReservePage() {
         <HeaderTitle>날짜/시간 선택</HeaderTitle>
       </Header>
 
-      <Content ref={contentRef}>
+      <ScrollContent ref={contentRef}>
         <PageHeader>
           <PageTitle>{roomName}</PageTitle>
           <SubText>원하는 날짜와 시간을 선택해주세요.</SubText>
         </PageHeader>
+
         <Section>
           <CalendarHeader>
             <ArrowBtn onClick={handlePrevMonth}>&lt;</ArrowBtn>
@@ -224,6 +223,7 @@ export default function ReservePage() {
                 !isPast &&
                 thisDate.getDate() === selectedDate.getDate() &&
                 thisDate.getMonth() === selectedDate.getMonth();
+
               return (
                 <DayCell key={day} $isPast={isPast} $isSelected={isSelected} onClick={() => handleDateClick(day)}>
                   {day}
@@ -232,7 +232,9 @@ export default function ReservePage() {
             })}
           </CalendarGrid>
         </Section>
+
         <Divider />
+
         <Section style={{ position: 'relative' }}>
           <SectionTitleRow>
             <SectionTitle>시간 선택</SectionTitle>
@@ -254,7 +256,9 @@ export default function ReservePage() {
           </TimeSelectWrapper>
           <GuideText>* 시작 시간과 종료 시간을 누르면 범위가 선택됩니다.</GuideText>
         </Section>
+
         <Divider />
+
         <Section>
           <SectionTitle>기준 인원 선택</SectionTitle>
           <Row>
@@ -269,7 +273,9 @@ export default function ReservePage() {
             </CounterBox>
           </Row>
         </Section>
+
         <Divider />
+
         <Section>
           <SectionTitle>옵션 선택</SectionTitle>
           <OptionList>
@@ -288,10 +294,13 @@ export default function ReservePage() {
             ))}
           </OptionList>
         </Section>
-      </Content>
+
+        {/* 하단 바에 가려지지 않게 여백 추가 */}
+        <BottomSpacer />
+      </ScrollContent>
 
       <BottomBar>
-        {selectedTimes.length > 0 ? (
+        {selectedTimes.length > 0 && (
           <SummaryBox>
             <SummaryItem>
               <span className='label'>날짜</span>
@@ -313,8 +322,6 @@ export default function ReservePage() {
               <span className='val highlight'>{hours}시간</span>
             </SummaryItem>
           </SummaryBox>
-        ) : (
-          <EmptySummary>시간을 선택해주세요</EmptySummary>
         )}
 
         <PaymentArea>
@@ -336,10 +343,8 @@ export default function ReservePage() {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%; /* 부모(MobileShell) 높이를 꽉 채움 */
   background-color: #fff;
-  /* 하단 바(80px) + BottomNav(64px) + 여유공간 */
-  padding-bottom: 160px;
 `;
 
 const Header = styled.div`
@@ -364,33 +369,34 @@ const HeaderTitle = styled.div`
   font-weight: 700;
 `;
 
-const Content = styled.div`
+const ScrollContent = styled.div`
   flex: 1;
   overflow-y: auto;
+
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
 const PageHeader = styled.div`
-  padding: 16px 20px 0;
+  padding: 24px 20px 0;
 `;
 
 const PageTitle = styled.h1`
   font-size: 20px;
   font-weight: 800;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   color: #111;
 `;
 
 const SubText = styled.p`
   font-size: 13px;
   color: #888;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 `;
 
 const Section = styled.div`
-  padding: 16px 20px;
+  padding: 24px 20px;
 `;
 
 const SectionTitleRow = styled.div`
@@ -438,6 +444,7 @@ const Divider = styled.div`
   background-color: #f7f7f7;
 `;
 
+// --- Calendar ---
 const CalendarHeader = styled.div`
   display: flex;
   align-items: center;
@@ -494,6 +501,7 @@ const DayCell = styled.div<{ $isSelected: boolean; $isPast: boolean }>`
   }
 `;
 
+// --- Time Selection ---
 const TimeSelectWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -569,6 +577,7 @@ const GuideText = styled.p`
   margin-top: 12px;
 `;
 
+// --- Person Info ---
 const Row = styled.div`
   display: flex;
   align-items: center;
@@ -621,6 +630,7 @@ const CountValue = styled.div`
   color: #333;
 `;
 
+// --- Options ---
 const OptionList = styled.div`
   display: flex;
   flex-direction: column;
@@ -647,9 +657,10 @@ const OptionInfo = styled.div`
   }
 `;
 
-// ✅ 하단 네비게이션 높이(64px)만큼 위로 올림
+// --- Bottom Bar ---
+// ✅ MobileShell Frame 기준으로 절대 위치 설정 (하단 탭바 64px 위)
 const BottomBar = styled.div`
-  position: fixed;
+  position: absolute;
   bottom: 64px;
   left: 0;
   right: 0;
@@ -660,14 +671,12 @@ const BottomBar = styled.div`
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
   padding: 20px;
   z-index: 1000;
-  max-width: 430px; /* MobileShell Frame 너비에 맞춤 */
-  margin: 0 auto;
 `;
 
 const SummaryBox = styled.div`
   background-color: #f8f9fa;
   border-radius: 12px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -700,20 +709,10 @@ const VerticalLine = styled.div`
   background-color: #e0e0e0;
 `;
 
-const EmptySummary = styled.div`
-  background-color: #f8f9fa;
-  border-radius: 12px;
-  padding: 14px;
-  text-align: center;
-  font-size: 13px;
-  color: #999;
-  margin-bottom: 12px;
-`;
-
 const PaymentArea = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 
   .total-row {
     display: flex;
@@ -722,7 +721,7 @@ const PaymentArea = styled.div`
     padding: 0 4px;
 
     .label {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       color: #333;
     }
@@ -748,4 +747,9 @@ const PayBtn = styled.button`
   &:active {
     filter: ${({ disabled }) => (disabled ? 'none' : 'brightness(0.9)')};
   }
+`;
+
+// 하단바가 덮는 영역만큼 여백 확보
+const BottomSpacer = styled.div`
+  height: 200px;
 `;
