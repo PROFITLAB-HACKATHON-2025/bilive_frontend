@@ -6,7 +6,6 @@ import HomeMapPage from '@/pages/home/HomeMapPage';
 import RoomDetailPage from '@/pages/home/RoomDetailPage';
 import ReservePage from '@/pages/reserve/ReservePage';
 import PaymentPage from '@/pages/payment/PaymentPage';
-import CommunityPage from '@/pages/community/CommunityPage';
 import MyPage from '@/pages/my/MyPage';
 
 function App() {
@@ -22,7 +21,6 @@ function App() {
         <Route path='/reserve' element={<ReservePage />} />
         <Route path='/payment' element={<PaymentPage />} />
 
-        <Route path='/community' element={<CommunityPage />} />
         <Route path='/my' element={<MyPage />} />
 
         <Route path='*' element={<Navigate to='/home' replace />} />
