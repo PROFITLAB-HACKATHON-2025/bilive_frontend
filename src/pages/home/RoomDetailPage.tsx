@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
 import IconStar from '@/assets/icons/Icon_star.svg';
-import RoomImage from '@/assets/images/bandroom1.png';
+import RoomImage from '@/assets/images/bandroom14.jpg';
 import { theme } from '@/styles/theme'; // 요청하신 테마 파일 import
 
 // 장비 타입 정의
